@@ -1,15 +1,14 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 
-// Always use process.env.API_KEY directly for initialization as per guidelines.
 export const generateSubtasks = async (taskTitle: string, description: string) => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  const prompt = `Act as a professional project manager. Break down the following task into a list of 5 concrete, actionable subtasks:
+  const prompt = `Ты — профессиональный менеджер проектов. Разбей следующую задачу на 5 конкретных и выполнимых подзадач на РУССКОМ ЯЗЫКЕ:
   
-  Task: ${taskTitle}
-  Description: ${description}
+  Задача: ${taskTitle}
+  Описание: ${description}
   
-  Provide only a list of strings representing the subtasks.`;
+  Верни только список строк.`;
 
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',
@@ -26,18 +25,17 @@ export const generateSubtasks = async (taskTitle: string, description: string) =
   });
 
   try {
-    // response.text is a getter, use it directly.
     const jsonStr = response.text?.trim() || '[]';
     return JSON.parse(jsonStr);
   } catch (e) {
-    console.error("Failed to parse AI response", e);
+    console.error("Ошибка парсинга AI ответа", e);
     return [];
   }
 };
 
 export const suggestTaskPriority = async (taskTitle: string) => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  const prompt = `Based on the task title "${taskTitle}", suggest if the priority should be LOW, NORMAL, HIGH, or URGENT. Explain briefly why.`;
+  const prompt = `На основе названия задачи "${taskTitle}" предложи приоритет: НИЗКИЙ, СРЕДНИЙ, ВЫСОКИЙ или СРОЧНО. Дай краткое пояснение на русском языке.`;
 
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',

@@ -1,16 +1,16 @@
 
 export enum Status {
-  TODO = 'To Do',
-  IN_PROGRESS = 'In Progress',
-  REVIEW = 'Review',
-  DONE = 'Done'
+  TODO = 'К выполнению',
+  IN_PROGRESS = 'В работе',
+  REVIEW = 'На проверке',
+  DONE = 'Готово'
 }
 
 export enum Priority {
-  LOW = 'Low',
-  NORMAL = 'Normal',
-  HIGH = 'High',
-  URGENT = 'Urgent'
+  LOW = 'Низкий',
+  NORMAL = 'Средний',
+  HIGH = 'Высокий',
+  URGENT = 'Срочно'
 }
 
 export interface Task {
@@ -23,4 +23,4 @@ export interface Task {
   createdAt: number;
 }
 
-export type ViewType = 'list' | 'board' | 'ai';
+export type ViewType = 'list' | 'board' | 'calendar' | 'ai';
