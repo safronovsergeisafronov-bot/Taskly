@@ -8,6 +8,7 @@ import {
   Circle, 
   ArrowUpCircle,
   AlertTriangle,
+  Zap
 } from 'lucide-react';
 
 interface TaskCardProps {
@@ -66,9 +67,17 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onClick, onStatusChange }) =>
         }`}>
           {task.title}
         </h3>
-        <button className="text-gray-300 hover:text-gray-600 transition-colors p-0.5">
-          <MoreVertical className="w-3.5 h-3.5" />
-        </button>
+        <div className="flex items-center gap-1.5">
+           {task.tokensUsed ? (
+             <div title="Потрачено токенов AI" className="text-gray-300 group-hover:text-indigo-300 transition-colors flex items-center gap-0.5 text-[8px] font-bold">
+               <Zap className="w-2.5 h-2.5" />
+               {task.tokensUsed}
+             </div>
+           ) : null}
+           <button className="text-gray-300 hover:text-gray-600 transition-colors p-0.5">
+             <MoreVertical className="w-3.5 h-3.5" />
+           </button>
+        </div>
       </div>
       
       <p className={`text-[11px] mb-3 line-clamp-2 h-8 leading-normal ${isCompleted ? 'text-gray-300' : 'text-gray-500'}`}>

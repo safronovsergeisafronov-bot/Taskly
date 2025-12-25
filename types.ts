@@ -21,6 +21,7 @@ export interface Task {
   priority: Priority;
   dueDate: string;
   createdAt: number;
+  tokensUsed?: number;
 }
 
 export type ViewType = 'list' | 'board' | 'calendar' | 'ai';

@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Task, Status, Priority } from '../types';
-import { X, Sparkles, Loader2, ListChecks, Plus } from 'lucide-react';
+import { X, Sparkles, Loader2, ListChecks, Zap } from 'lucide-react';
 import { generateSubtasks } from '../services/geminiService';
 
 interface TaskModalProps {
@@ -18,6 +18,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, onClose, onSave }) => {
   const [dueDate, setDueDate] = useState(task?.dueDate || new Date().toISOString().split('T')[0]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiSubtasks, setAiSubtasks] = useState<string[]>([]);
+  const [newTokens, setNewTokens] = useState(0);
   
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -57,7 +58,16 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, onClose, onSave }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({ id: task?.id, title, description, status, priority, dueDate });
+    const totalTokens = (task?.tokensUsed || 0) + newTokens;
+    onSave({ 
+      id: task?.id, 
+      title, 
+      description, 
+      status, 
+      priority, 
+      dueDate,
+      tokensUsed: totalTokens
+    });
   };
 
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -69,8 +79,9 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, onClose, onSave }) => {
   const handleAISuggest = async () => {
     if (!title) return;
     setIsGenerating(true);
-    const subtasks = await generateSubtasks(title, description);
-    setAiSubtasks(subtasks);
+    const result = await generateSubtasks(title, description);
+    setAiSubtasks(result.subtasks);
+    setNewTokens(prev => prev + result.tokens);
     setIsGenerating(false);
   };
 
@@ -90,9 +101,17 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, onClose, onSave }) => {
         className="bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden animate-in fade-in zoom-in duration-200"
       >
         <div className="flex justify-between items-center p-5 border-b border-gray-100">
-          <h2 className="text-lg font-bold text-gray-800 tracking-tight">
-            {task ? 'Редактировать' : 'Новая задача'}
-          </h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-bold text-gray-800 tracking-tight">
+              {task ? 'Редактировать' : 'Новая задача'}
+            </h2>
+            {task?.tokensUsed ? (
+               <div className="flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full text-[9px] font-bold">
+                 <Zap className="w-2.5 h-2.5" />
+                 {task.tokensUsed}
+               </div>
+            ) : null}
+          </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1.5 hover:bg-gray-50 rounded-lg transition-all">
             <X className="w-5 h-5" />
           </button>
@@ -206,13 +225,18 @@ const TaskModal: React.FC<TaskModalProps> = ({ task, onClose, onSave }) => {
                     </div>
                   ))}
                 </div>
-                <button
-                  type="button"
-                  onClick={addAiToDescription}
-                  className="w-full py-2 bg-white border border-indigo-200 text-indigo-600 rounded-lg text-[10px] font-bold hover:bg-indigo-50 transition-all uppercase tracking-wider"
-                >
-                  Вставить в описание
-                </button>
+                <div className="flex flex-col gap-2">
+                  <button
+                    type="button"
+                    onClick={addAiToDescription}
+                    className="w-full py-2 bg-white border border-indigo-200 text-indigo-600 rounded-lg text-[10px] font-bold hover:bg-indigo-50 transition-all uppercase tracking-wider"
+                  >
+                    Вставить в описание
+                  </button>
+                  <p className="text-center text-[9px] font-bold text-indigo-300 uppercase tracking-tighter">
+                    Расход генерации: {newTokens} токенов
+                  </p>
+                </div>
               </div>
             )}
           </div>

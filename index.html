@@ -42,6 +42,10 @@
       color: #9ca3af !important;
     }
   </style>
+  <script>
+    // Защита от краха приложения, если окружение не предоставляет объект process
+    window.process = window.process || { env: {} };
+  </script>
 <script type="importmap">
 {
   "imports": {
